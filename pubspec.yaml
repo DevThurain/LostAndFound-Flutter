@@ -30,3 +30,10 @@ flutter:
   assets:
     # Add assets from the images directory to the application.
     - assets/images/
+    - assets/fonts/
+
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-Regular.ttf
