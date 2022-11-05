@@ -1,0 +1,6 @@
+{
+  "appTitle": "lost_and_found",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
