@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lost_and_found/src/features/home/home_screen.dart';
 import 'package:lost_and_found/src/features/login/login_screen.dart';
+import 'package:lost_and_found/src/features/register/register_screen.dart';
 
 Route<dynamic> AppRouter(RouteSettings routeSettings) {
   return MaterialPageRoute<void>(
@@ -12,9 +13,12 @@ Route<dynamic> AppRouter(RouteSettings routeSettings) {
 
         case LoginScreen.routeName:
           return const LoginScreen();
-          
+
+        case RegisterScreen.routeName:
+          return const RegisterScreen();
+
         default:
-          return const LoginScreen();
+          return const RegisterScreen();
       }
     },
   );
