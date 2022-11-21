@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lost_and_found/src/features/add_item/add_item_screen.dart';
 import 'package:lost_and_found/src/features/based_screen/based_screen.dart';
 import 'package:lost_and_found/src/features/home/home_screen.dart';
 import 'package:lost_and_found/src/features/login/login_screen.dart';
@@ -21,8 +22,11 @@ Route<dynamic> AppRouter(RouteSettings routeSettings) {
         case BasedScreen.routeName:
           return const BasedScreen();
 
+        case AddItemScreen.routeName:
+          return const AddItemScreen();
+
         default:
-          return const BasedScreen();
+          return const AddItemScreen();
       }
     },
   );

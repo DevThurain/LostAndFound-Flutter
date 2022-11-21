@@ -18,6 +18,11 @@ dependencies:
   cloud_firestore: ^4.0.4
   firebase_messaging: ^14.0.4
   firebase_auth: ^4.1.1
+  google_maps_flutter: ^2.2.1
+  permission_handler: ^10.2.0
+  geolocator: ^8.2.0
+  geocoding: ^2.0.4
+  image_picker: ^0.8.6
 
   
   flutter_localizations:

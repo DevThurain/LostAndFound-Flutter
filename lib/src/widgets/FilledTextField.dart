@@ -7,6 +7,7 @@ class FilledTextField extends StatefulWidget {
   final Color filledColor;
   final String hintText;
   final String? fontFamily;
+  final int maxLines;
   final TextInputAction textInputAction;
   final Function(String) onChanged;
 
@@ -14,6 +15,7 @@ class FilledTextField extends StatefulWidget {
     Key? key,
     this.filledColor = Colors.white,
     this.fontFamily,
+    this.maxLines = 1,
     this.textInputAction = TextInputAction.next,
     this.hintText = "",
     required this.onChanged,
@@ -37,6 +39,7 @@ class _FilledTextFieldState extends State<FilledTextField> {
     return TextField(
       controller: textEditingController,
       onChanged: widget.onChanged,
+      maxLines: widget.maxLines,
       textInputAction: TextInputAction.next,
       style: TextStyle(fontFamily: widget.fontFamily, decoration: TextDecoration.none),
       decoration: InputDecoration(

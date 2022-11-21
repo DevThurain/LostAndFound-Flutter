@@ -12,7 +12,8 @@ class AppDimen {
   static const MARGIN_XLARGE = 32.0;
   static const MARGIN_XXLARGE = 48.0;
 
-  static const TEXT_SMALL = 10.0;
+  static const TEXT_XSMALL = 10.0;
+  static const TEXT_SMALL = 12.0;
   static const TEXT_REGULAR = 14.0;
   static const TEXT_REGULAR_2X = 16.0;
   static const TEXT_REGULAR_3X = 20.0;

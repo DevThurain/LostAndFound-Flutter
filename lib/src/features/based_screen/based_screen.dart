@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lost_and_found/src/core/constants/app_color.dart';
+import 'package:lost_and_found/src/core/constants/app_dimen.dart';
 import 'package:lost_and_found/src/core/utils/utils.dart';
 import 'package:lost_and_found/src/features/based_screen/bloc/bottom_navigation_bloc.dart';
 import 'package:lost_and_found/src/features/home/home_screen.dart';
@@ -42,6 +44,9 @@ class _BasedScreenState extends State<BasedScreen> {
               appBar: Utils.darkIconStatusBar(),
               backgroundColor: Colors.white,
               bottomNavigationBar: BottomNavigationBar(
+                selectedFontSize: AppDimen.TEXT_SMALL,
+                unselectedFontSize: AppDimen.TEXT_SMALL,
+                selectedItemColor: AppColor.violet,
                 items: [
                   BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
                   BottomNavigationBarItem(icon: Icon(Icons.post_add), label: "Posts"),
