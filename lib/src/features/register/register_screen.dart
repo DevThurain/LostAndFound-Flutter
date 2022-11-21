@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:lost_and_found/src/core/constants/app_color.dart';
 import 'package:lost_and_found/src/core/constants/app_dimen.dart';
 import 'package:lost_and_found/src/core/utils/utils.dart';
+import 'package:lost_and_found/src/data/models/lost_and_found_model_impl.dart';
+import 'package:lost_and_found/src/data/vos/user_vo.dart';
+import 'package:lost_and_found/src/features/based_screen/based_screen.dart';
 import 'package:lost_and_found/src/widgets/FilledTextField.dart';
 import 'package:lost_and_found/src/widgets/IntroTitles.dart';
 
@@ -14,6 +17,10 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  String name = "";
+  String email = "";
+  String phone = "";
+  String password = "";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,9 +38,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 subtitle: "Please fill in the form to continue",
               ),
               SizedBox(height: AppDimen.MARGIN_XXLARGE),
-              TextFieldSection(),
+              TextFieldSection(
+                onNameChanged: (text) {
+                  name = text;
+                },
+                onEmailChanged: (text) {
+                  email = text;
+                },
+                onPhoneChanged: (text) {
+                  phone = text;
+                },
+                onPasswordChanged: (text) {
+                  password = text;
+                },
+              ),
               SizedBox(height: AppDimen.MARGIN_XXLARGE),
-              ButtonSection()
+              ButtonSection(
+                onRegister: () async {
+                  if (name.isNotEmpty &&
+                      email.isNotEmpty &&
+                      phone.isNotEmpty &&
+                      password.isNotEmpty) {
+                    UserVO user = UserVO(name, email, password, phone, "", "", "");
+                    LostAndFoundModelImpl().registerUser(user).then((user) {
+                      Navigator.pushNamed(context, BasedScreen.routeName);
+                    }).onError((error, stackTrace) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text(error.toString())));
+                    });
+                  }
+                },
+              )
             ],
           ),
         ),
@@ -43,8 +78,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 }
 
 class ButtonSection extends StatelessWidget {
+  final Function onRegister;
   const ButtonSection({
     Key? key,
+    required this.onRegister,
   }) : super(key: key);
 
   @override
@@ -67,7 +104,9 @@ class ButtonSection extends StatelessWidget {
                 "Register",
                 style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600),
               ),
-              onPressed: () {},
+              onPressed: () {
+                onRegister();
+              },
             ),
           ),
           SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
@@ -102,7 +141,15 @@ class ButtonSection extends StatelessWidget {
 }
 
 class TextFieldSection extends StatelessWidget {
+  final Function(String) onNameChanged;
+  final Function(String) onEmailChanged;
+  final Function(String) onPhoneChanged;
+  final Function(String) onPasswordChanged;
   const TextFieldSection({
+    required this.onNameChanged,
+    required this.onEmailChanged,
+    required this.onPhoneChanged,
+    required this.onPasswordChanged,
     Key? key,
   }) : super(key: key);
 
@@ -117,28 +164,36 @@ class TextFieldSection extends StatelessWidget {
               fontFamily: 'Poppins',
               filledColor: AppColor.lightWhite,
               hintText: 'Full Name',
-              onChanged: (text) {}),
+              onChanged: (text) {
+                onNameChanged(text);
+              }),
           SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
           FilledTextField(
               textInputAction: TextInputAction.next,
               fontFamily: 'Poppins',
               filledColor: AppColor.lightWhite,
               hintText: 'Email Address',
-              onChanged: (text) {}),
+              onChanged: (text) {
+                onEmailChanged(text);
+              }),
           SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
           FilledTextField(
               textInputAction: TextInputAction.next,
               fontFamily: 'Poppins',
               filledColor: AppColor.lightWhite,
               hintText: 'Phone Number',
-              onChanged: (text) {}),
+              onChanged: (text) {
+                onPhoneChanged(text);
+              }),
           SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
           FilledTextField(
               textInputAction: TextInputAction.next,
               fontFamily: 'Poppins',
               filledColor: AppColor.lightWhite,
               hintText: 'Password',
-              onChanged: (text) {}),
+              onChanged: (text) {
+                onPasswordChanged(text);
+              }),
         ],
       ),
     );

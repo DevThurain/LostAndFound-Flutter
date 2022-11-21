@@ -4,6 +4,7 @@ import 'package:lost_and_found/src/features/based_screen/based_screen.dart';
 import 'package:lost_and_found/src/features/home/home_screen.dart';
 import 'package:lost_and_found/src/features/login/login_screen.dart';
 import 'package:lost_and_found/src/features/register/register_screen.dart';
+import 'package:lost_and_found/src/persistence/daos/user_dao.dart';
 
 Route<dynamic> AppRouter(RouteSettings routeSettings) {
   return MaterialPageRoute<void>(
@@ -26,7 +27,11 @@ Route<dynamic> AppRouter(RouteSettings routeSettings) {
           return const AddItemScreen();
 
         default:
-          return const AddItemScreen();
+          if (UserDao().getUserList().isEmpty) {
+            return const RegisterScreen();
+          } else {
+            return const BasedScreen();
+          }
       }
     },
   );
