@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lost_and_found/src/features/based_screen/based_screen.dart';
 import 'package:lost_and_found/src/features/home/home_screen.dart';
 import 'package:lost_and_found/src/features/login/login_screen.dart';
 import 'package:lost_and_found/src/features/register/register_screen.dart';
@@ -17,8 +18,11 @@ Route<dynamic> AppRouter(RouteSettings routeSettings) {
         case RegisterScreen.routeName:
           return const RegisterScreen();
 
+        case BasedScreen.routeName:
+          return const BasedScreen();
+
         default:
-          return const RegisterScreen();
+          return const BasedScreen();
       }
     },
   );
