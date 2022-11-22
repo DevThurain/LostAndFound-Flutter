@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lost_and_found/src/core/constants/app_color.dart';
 import 'package:lost_and_found/src/core/constants/app_dimen.dart';
+import 'package:lost_and_found/src/features/add_item/add_item_screen.dart';
 import 'package:lost_and_found/src/features/global_widgets/poppin_text.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,22 +17,25 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Align(
-          alignment: Alignment.bottomRight,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppDimen.MARGIN_MEDIUM_2,vertical: AppDimen.MARGIN_MEDIUM_2),
-            child: FloatingActionButton(
-              onPressed: () {},
-              backgroundColor: AppColor.violet,
-              splashColor: AppColor.white,
-              child: Icon(Icons.add),
-            ),
-          ),
-        ),
         Positioned.fill(
           child: SingleChildScrollView(
             child: Column(
               children: [],
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppDimen.MARGIN_MEDIUM_2, vertical: AppDimen.MARGIN_MEDIUM_2),
+            child: FloatingActionButton(
+              onPressed: () {
+                Navigator.pushNamed(context, AddItemScreen.routeName);
+              },
+              backgroundColor: AppColor.violet,
+              splashColor: AppColor.white,
+              child: Icon(Icons.add),
             ),
           ),
         ),

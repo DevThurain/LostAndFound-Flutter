@@ -28,4 +28,6 @@ class UserVO {
   String profileUrl = "";
 
   UserVO(this.fullName, this.email, this.password, this.phone, this.token, this.profileUrl, this.uuid);
+
+
 }

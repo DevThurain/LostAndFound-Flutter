@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:lost_and_found/src/data/models/lost_and_found_model.dart';
+import 'package:lost_and_found/src/data/vos/item_vo.dart';
 import 'package:lost_and_found/src/data/vos/user_vo.dart';
 import 'package:lost_and_found/src/data/vos/app_error.dart';
 import 'package:lost_and_found/src/persistence/daos/user_dao.dart';
@@ -117,6 +122,49 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
 
     await FirebaseAuth.instance.signOut();
     return Right("success");
+  }
+
+  @override
+  Future<Either<AppError, ItemVO>> uploadItem(ItemVO item) async {
+    item.timestamp = DateTime.now().microsecondsSinceEpoch.toString();
+    item.uuid = UserDao().getUserList().first.uuid;
+    item.userName = UserDao().getUserList().first.fullName;
+    item.userProfile = UserDao().getUserList().first.profileUrl;
+    
+    // Create a storage reference from our app
+    final storageRef = FirebaseStorage.instance.ref();
+
+    // Create a reference to 'images/mountains.jpg'
+    final itemRef = storageRef.child("items/${item.uuid}_${item.timestamp}.jpg");
+
+    File file = File(item.photoPath);
+
+    try {
+      await itemRef.putFile(file);
+      item.photoPath = await itemRef.getDownloadURL();
+      print("photo --> + ${item.photoPath}");
+
+      final storeItem = <String, dynamic>{
+        "timestamp": item.timestamp,
+        "name": item.name,
+        "description": item.description,
+        "contactInfo": item.contactInfo,
+        "photoPath": item.photoPath,
+        "address": item.address,
+        "lat": item.lat,
+        "lon": item.lon,
+        "uuid": item.uuid,
+        "userName": item.userName,
+        "userProfile": item.userProfile
+      };
+
+      var doc = FirebaseFirestore.instance.collection("items").doc(item.timestamp);
+      doc.set(storeItem);
+
+      return Right(item);
+    } on FirebaseException catch (e) {
+      return Left(AppError(errorMessage: e.message ?? "unkown firebase error"));
+    }
   }
 
   // await Future.delayed(Duration(seconds: 2));
