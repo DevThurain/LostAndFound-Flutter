@@ -10,7 +10,6 @@ class PostScreen extends StatefulWidget {
 class _PostScreenState extends State<PostScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: SafeArea(child: Expanded(child: Center(child: Text('Post Screen')))),
-    );  }
+    return Center(child: Text('Post Screen'));
+}
 }

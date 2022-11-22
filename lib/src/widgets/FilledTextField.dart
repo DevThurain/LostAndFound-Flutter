@@ -45,7 +45,7 @@ class _FilledTextFieldState extends State<FilledTextField> {
       onChanged: widget.onChanged,
       maxLines: widget.maxLines,
       enabled: widget.enable,
-      textInputAction: TextInputAction.next,
+      textInputAction: widget.textInputAction,
       onSubmitted: (value) {
         widget.onImeAction();
       },

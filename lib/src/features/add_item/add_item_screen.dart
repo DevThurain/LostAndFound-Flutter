@@ -33,38 +33,36 @@ class _AddItemScreenState extends State<AddItemScreen> {
     return Builder(builder: (context) {
       return Scaffold(
         backgroundColor: AppColor.white,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: AppDimen.MARGIN_MEDIUM),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppDimen.MARGIN_MEDIUM),
-                  child: AddItemTitleSection(),
-                ),
-                SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
-                AddItemTextFieldSection(),
-                SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
-                Padding(
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: AppDimen.MARGIN_MEDIUM),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppDimen.MARGIN_MEDIUM),
+                child: AddItemTitleSection(),
+              ),
+              SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
+              AddItemTextFieldSection(),
+              SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppDimen.MARGIN_MEDIUM_2),
+                child:
+                    MapAndAddressWidget(onGetAddress: (address) {}, onGetLocation: (location) {}),
+              ),
+              SizedBox(height: AppDimen.MARGIN_MEDIUM),
+              Divider(thickness: 1),
+              SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
+              Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppDimen.MARGIN_MEDIUM_2),
-                  child:
-                      MapAndAddressWidget(onGetAddress: (address) {}, onGetLocation: (location) {}),
-                ),
-                SizedBox(height: AppDimen.MARGIN_MEDIUM),
-                Divider(thickness: 1),
-                SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
-                Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppDimen.MARGIN_MEDIUM_2),
-                    child: PickImageSection()),
-                SizedBox(height: AppDimen.MARGIN_LARGE),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppDimen.MARGIN_MEDIUM_2),
-                  child: UploadButtonSection(),
-                ),
-                SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
-              ],
-            ),
+                  child: PickImageSection()),
+              SizedBox(height: AppDimen.MARGIN_LARGE),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppDimen.MARGIN_MEDIUM_2),
+                child: UploadButtonSection(),
+              ),
+              SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
+            ],
           ),
         ),
       );

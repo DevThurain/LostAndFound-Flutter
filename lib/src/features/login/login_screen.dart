@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lost_and_found/src/core/constants/app_color.dart';
 import 'package:lost_and_found/src/core/constants/app_dimen.dart';
 import 'package:lost_and_found/src/core/utils/utils.dart';
+import 'package:lost_and_found/src/data/vos/user_vo.dart';
+import 'package:lost_and_found/src/features/based_screen/based_screen.dart';
+import 'package:lost_and_found/src/features/login/bloc/login_bloc.dart';
+import 'package:lost_and_found/src/features/register/register_screen.dart';
 import 'package:lost_and_found/src/widgets/BasedText.dart';
 import 'package:lost_and_found/src/widgets/FilledPasswordTextField.dart';
 import 'package:lost_and_found/src/widgets/FilledTextField.dart';
@@ -16,14 +21,16 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  String email = "";
+  String password = "";
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.white,
-      resizeToAvoidBottomInset: false,
-      appBar: Utils.darkIconStatusBar(),
-      body: SafeArea(
-        child: Column(
+    return BlocProvider<LoginBloc>(
+      create: (context) => LoginBloc(),
+      child: Scaffold(
+        backgroundColor: AppColor.white,
+        resizeToAvoidBottomInset: false,
+        body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             IntroTitles(
@@ -31,9 +38,65 @@ class _LoginScreenState extends State<LoginScreen> {
               subtitle: "Please sign in to your account",
             ),
             SizedBox(height: AppDimen.MARGIN_XXLARGE),
-            TextFieldSection(),
+            Builder(
+              builder: (context) {
+                return TextFieldSection(
+                  onEmailChanged: (text) {
+                    email = text;
+                  },
+                  onPasswordChanged: (text) {
+                    password = text;
+                  },
+                  onComplete: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+
+                    if (email.isNotEmpty && password.isNotEmpty) {
+                      UserVO userVO = UserVO("", email, password, "", "", "", "");
+                      context.read<LoginBloc>().add(EventOnLogin(userVO: userVO));
+                    }
+                  },
+                );
+              }
+            ),
             SizedBox(height: AppDimen.MARGIN_LARGE),
-            ButtonSection()
+            Builder(builder: (context) {
+              return BlocListener<LoginBloc, LoginState>(
+                listener: (context, state) {
+                  if (state.isLoading) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text("please wait ..."), backgroundColor: AppColor.violet));
+                  }
+
+                  if (state.appError != null) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(state.appError?.errorMessage ?? ""),
+                        backgroundColor: Colors.redAccent));
+                  }
+
+                  if (state.isSuccess) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("success"), backgroundColor: AppColor.violet));
+
+                    Navigator.popAndPushNamed(context, BasedScreen.routeName);
+                  }
+                },
+                child: ButtonSection(
+                  onTapSignIn: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+
+                    if (email.isNotEmpty && password.isNotEmpty) {
+                      UserVO userVO = UserVO("", email, password, "", "", "", "");
+                      context.read<LoginBloc>().add(EventOnLogin(userVO: userVO));
+                    }
+                  },
+                  onTapRegister: () {
+                    Navigator.pushNamed(context, RegisterScreen.routeName);
+                  },
+                ),
+              );
+            })
           ],
         ),
       ),
@@ -42,7 +105,11 @@ class _LoginScreenState extends State<LoginScreen> {
 }
 
 class ButtonSection extends StatelessWidget {
+  final Function onTapSignIn;
+  final Function onTapRegister;
   const ButtonSection({
+    required this.onTapSignIn,
+    required this.onTapRegister,
     Key? key,
   }) : super(key: key);
 
@@ -66,7 +133,9 @@ class ButtonSection extends StatelessWidget {
                 "Sign In",
                 style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w600),
               ),
-              onPressed: () {},
+              onPressed: () {
+                onTapSignIn();
+              },
             ),
           ),
           SizedBox(height: AppDimen.MARGIN_CARD_MEDIUM_2),
@@ -102,29 +171,34 @@ class ButtonSection extends StatelessWidget {
             ),
           ),
           SizedBox(height: AppDimen.MARGIN_CARD_MEDIUM_2),
-          Text.rich(
-            TextSpan(children: [
-              TextSpan(
-                text: "Don\'t have an account?",
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  color: AppColor.black,
-                  fontSize: AppDimen.TEXT_REGULAR,
+          GestureDetector(
+            onTap: () {
+              onTapRegister();
+            },
+            child: Text.rich(
+              TextSpan(children: [
+                TextSpan(
+                  text: "Don\'t have an account?",
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: AppColor.black,
+                    fontSize: AppDimen.TEXT_REGULAR,
+                  ),
                 ),
-              ),
-              WidgetSpan(
-                  child: SizedBox(
-                width: AppDimen.MARGIN_MEDIUM,
-              )),
-              TextSpan(
-                text: "Register",
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  color: AppColor.violet,
-                  fontSize: AppDimen.TEXT_REGULAR,
+                WidgetSpan(
+                    child: SizedBox(
+                  width: AppDimen.MARGIN_MEDIUM,
+                )),
+                TextSpan(
+                  text: "Register",
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: AppColor.violet,
+                    fontSize: AppDimen.TEXT_REGULAR,
+                  ),
                 ),
-              ),
-            ]),
+              ]),
+            ),
           )
         ],
       ),
@@ -133,7 +207,16 @@ class ButtonSection extends StatelessWidget {
 }
 
 class TextFieldSection extends StatelessWidget {
-  const TextFieldSection({Key? key}) : super(key: key);
+  final Function(String) onEmailChanged;
+  final Function(String) onPasswordChanged;
+  final Function onComplete;
+
+  const TextFieldSection({
+    Key? key,
+    required this.onEmailChanged,
+    required this.onPasswordChanged,
+    required this.onComplete,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -148,14 +231,21 @@ class TextFieldSection extends StatelessWidget {
               filledColor: AppColor.lightWhite,
               hintText: 'Email',
               onImeAction: () {},
-              onChanged: (text) {}),
+              onChanged: (text) {
+                onEmailChanged(text);
+              }),
           SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
           FilledPasswordTextField(
               textInputAction: TextInputAction.done,
               fontFamily: 'Poppins',
               filledColor: AppColor.lightWhite,
               hintText: 'Password',
-              onChanged: (text) {}),
+              onImeAction: () {
+                onComplete();
+              },
+              onChanged: (text) {
+                onPasswordChanged(text);
+              }),
           SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
           Text(
             'Forget Password?',

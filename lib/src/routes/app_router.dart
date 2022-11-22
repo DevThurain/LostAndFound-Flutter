@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:lost_and_found/src/features/add_item/add_item_screen.dart';
 import 'package:lost_and_found/src/features/based_screen/based_screen.dart';
@@ -27,8 +29,8 @@ Route<dynamic> AppRouter(RouteSettings routeSettings) {
           return const AddItemScreen();
 
         default:
-          if (UserDao().getUserList().isEmpty) {
-            return const RegisterScreen();
+          if (FirebaseAuth.instance.currentUser == null) {
+            return const LoginScreen();
           } else {
             return const BasedScreen();
           }

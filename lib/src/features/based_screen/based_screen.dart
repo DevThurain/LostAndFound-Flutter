@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lost_and_found/src/core/constants/app_color.dart';
 import 'package:lost_and_found/src/core/constants/app_dimen.dart';
@@ -41,9 +42,9 @@ class _BasedScreenState extends State<BasedScreen> {
                   context.read<BottomNavigationBloc>().add(EventBottomNavigationChange(position));
                 },
               ),
-              appBar: Utils.darkIconStatusBar(),
               backgroundColor: Colors.white,
               bottomNavigationBar: BottomNavigationBar(
+                backgroundColor: Colors.white,
                 selectedFontSize: AppDimen.TEXT_SMALL,
                 unselectedFontSize: AppDimen.TEXT_SMALL,
                 selectedItemColor: AppColor.violet,

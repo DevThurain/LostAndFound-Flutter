@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
           // background.
           restorationScopeId: 'app',
           debugShowCheckedModeBanner: false,
+          
 
           // Provide the generated AppLocalizations to the MaterialApp. This
           // allows descendant Widgets to display the correct translations
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
           // Define a function to handle named routes in order to support
           // Flutter web url navigation and deep linking.
           onGenerateRoute: AppRouter,
+          
         );
       },
     );

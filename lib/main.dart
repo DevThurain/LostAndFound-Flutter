@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lost_and_found/firebase_options.dart';
 import 'package:lost_and_found/src/data/vos/user_vo.dart';
@@ -13,6 +14,12 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await _initializeHive();
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.white,
+    statusBarColor: Colors.white,
+    statusBarIconBrightness: Brightness.dark,
+    systemStatusBarContrastEnforced: true
+  ));
   runApp(MyApp());
 }
 

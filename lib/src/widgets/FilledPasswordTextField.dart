@@ -9,6 +9,7 @@ class FilledPasswordTextField extends StatefulWidget {
   final String? fontFamily;
   final TextInputAction textInputAction;
   final Function(String) onChanged;
+  final Function onImeAction;
 
   FilledPasswordTextField({
     Key? key,
@@ -17,6 +18,7 @@ class FilledPasswordTextField extends StatefulWidget {
     this.textInputAction = TextInputAction.next,
     this.hintText = "",
     required this.onChanged,
+    required this.onImeAction,
   }) : super(key: key);
 
   @override
@@ -39,7 +41,10 @@ class _FilledPasswordTextFieldState extends State<FilledPasswordTextField> {
       controller: textEditingController,
       obscureText: hidePassword,
       onChanged: widget.onChanged,
-      textInputAction: TextInputAction.next,
+      textInputAction: widget.textInputAction,
+      onSubmitted: (value) {
+        widget.onImeAction();
+      },
       style: TextStyle(fontFamily: widget.fontFamily),
       decoration: InputDecoration(
           border: OutlineInputBorder(

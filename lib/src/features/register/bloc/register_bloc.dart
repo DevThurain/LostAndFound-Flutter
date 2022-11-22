@@ -24,7 +24,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         registerResponse.fold((left) {
           emit(RegisterState(appError: left));
         }, (right) {
-          emit(RegisterState(user: right));
+          emit(RegisterState(user: right,isSuccess: true));
         });
       }
     });
