@@ -147,6 +147,7 @@ class TextFieldSection extends StatelessWidget {
               fontFamily: 'Poppins',
               filledColor: AppColor.lightWhite,
               hintText: 'Email',
+              onImeAction: () {},
               onChanged: (text) {}),
           SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
           FilledPasswordTextField(

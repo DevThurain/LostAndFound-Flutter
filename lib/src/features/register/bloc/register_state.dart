@@ -1,11 +1,11 @@
 part of 'register_bloc.dart';
 
 @immutable
-abstract class RegisterState {}
+class RegisterState {
+  UserVO? user;
+  bool isLoading;
+  bool isSuccess;
+  AppError? appError;
 
-class RegisterInitial extends RegisterState {}
-
-class RegisterSuccess extends RegisterState {}
-
-class RegisterError extends RegisterState {}
-
+  RegisterState({this.user, this.isLoading = false, this.isSuccess = false,this.appError});
+}

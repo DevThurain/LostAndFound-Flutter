@@ -120,10 +120,7 @@ class AddItemTitleSection extends StatelessWidget {
         PoppinText(
           "Add Item",
           style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: AppDimen.TEXT_REGULAR_3X
-          ),
+              color: Colors.black, fontWeight: FontWeight.bold, fontSize: AppDimen.TEXT_REGULAR_3X),
         ),
         IconButton(
           icon: Icon(Icons.more_vert),
@@ -153,6 +150,7 @@ class AddItemTextFieldSection extends StatelessWidget {
               fontFamily: 'Poppins',
               filledColor: AppColor.lightWhite,
               hintText: 'Item Name',
+              onImeAction: () {},
               onChanged: (text) {}),
           SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
           FilledTextField(
@@ -161,6 +159,7 @@ class AddItemTextFieldSection extends StatelessWidget {
               filledColor: AppColor.lightWhite,
               hintText: 'Detail',
               maxLines: 5,
+              onImeAction: () {},
               onChanged: (text) {}),
           SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
           FilledTextField(
@@ -168,6 +167,7 @@ class AddItemTextFieldSection extends StatelessWidget {
               fontFamily: 'Poppins',
               filledColor: AppColor.lightWhite,
               hintText: 'Contact Info',
+              onImeAction: () {},
               onChanged: (text) {}),
         ],
       ),

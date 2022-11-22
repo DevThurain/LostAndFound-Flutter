@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lost_and_found/src/core/constants/app_color.dart';
 import 'package:lost_and_found/src/core/constants/app_dimen.dart';
 import 'package:lost_and_found/src/core/utils/utils.dart';
+import 'package:lost_and_found/src/data/models/lost_and_found_model.dart';
 import 'package:lost_and_found/src/data/models/lost_and_found_model_impl.dart';
 import 'package:lost_and_found/src/data/vos/user_vo.dart';
 import 'package:lost_and_found/src/features/based_screen/based_screen.dart';
+import 'package:lost_and_found/src/features/register/bloc/register_bloc.dart';
 import 'package:lost_and_found/src/widgets/FilledTextField.dart';
 import 'package:lost_and_found/src/widgets/IntroTitles.dart';
 
@@ -23,53 +26,92 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String password = "";
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
-      appBar: Utils.darkIconStatusBar(),
-      body: Center(
-        child: SingleChildScrollView(
-          physics: ClampingScrollPhysics(),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IntroTitles(
-                title: "Create new account",
-                subtitle: "Please fill in the form to continue",
-              ),
-              SizedBox(height: AppDimen.MARGIN_XXLARGE),
-              TextFieldSection(
-                onNameChanged: (text) {
-                  name = text;
-                },
-                onEmailChanged: (text) {
-                  email = text;
-                },
-                onPhoneChanged: (text) {
-                  phone = text;
-                },
-                onPasswordChanged: (text) {
-                  password = text;
-                },
-              ),
-              SizedBox(height: AppDimen.MARGIN_XXLARGE),
-              ButtonSection(
-                onRegister: () async {
-                  if (name.isNotEmpty &&
-                      email.isNotEmpty &&
-                      phone.isNotEmpty &&
-                      password.isNotEmpty) {
-                    UserVO user = UserVO(name, email, password, phone, "", "", "");
-                    LostAndFoundModelImpl().registerUser(user).then((user) {
-                      Navigator.pushNamed(context, BasedScreen.routeName);
-                    }).onError((error, stackTrace) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text(error.toString())));
-                    });
+    return BlocProvider<RegisterBloc>(
+      create: (context) => RegisterBloc(),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        resizeToAvoidBottomInset: true,
+        appBar: Utils.darkIconStatusBar(),
+        body: Center(
+          child: SingleChildScrollView(
+            physics: ClampingScrollPhysics(),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IntroTitles(
+                  title: "Create new account",
+                  subtitle: "Please fill in the form to continue",
+                ),
+                SizedBox(height: AppDimen.MARGIN_XXLARGE),
+                Builder(
+                  builder: (context) {
+                    return TextFieldSection(
+                      onNameChanged: (text) {
+                        name = text;
+                      },
+                      onDone: () {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        if (name.isNotEmpty &&
+                            email.isNotEmpty &&
+                            phone.isNotEmpty &&
+                            password.isNotEmpty) {
+                          UserVO user = UserVO(name, email, password, phone, "", "", "");
+                          context.read<RegisterBloc>().add(EventOnRegister(userVO: user));
+                        }
+                      },
+                      onEmailChanged: (text) {
+                        email = text;
+                      },
+                      onPhoneChanged: (text) {
+                        phone = text;
+                      },
+                      onPasswordChanged: (text) {
+                        password = text;
+                      },
+                    );
                   }
-                },
-              )
-            ],
+                ),
+                SizedBox(height: AppDimen.MARGIN_XXLARGE),
+                Builder(builder: (context) {
+                  return BlocListener<RegisterBloc, RegisterState>(
+                    bloc: BlocProvider.of<RegisterBloc>(context),
+                    listener: (context, state) {
+                      if (state.isLoading) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text("please wait ..."), backgroundColor: AppColor.violet));
+                      }
+
+                      if (state.appError != null) {
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(state.appError?.errorMessage ?? ""),
+                            backgroundColor: Colors.redAccent));
+                      }
+
+                      if (state.isSuccess) {
+                        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("success"), backgroundColor: AppColor.violet));
+                      }
+                    },
+                    child: Builder(builder: (context) {
+                      return ButtonSection(
+                        onRegister: () async {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          if (name.isNotEmpty &&
+                              email.isNotEmpty &&
+                              phone.isNotEmpty &&
+                              password.isNotEmpty) {
+                            UserVO user = UserVO(name, email, password, phone, "", "", "");
+                            context.read<RegisterBloc>().add(EventOnRegister(userVO: user));
+                          }
+                        },
+                      );
+                    }),
+                  );
+                })
+              ],
+            ),
           ),
         ),
       ),
@@ -145,57 +187,73 @@ class TextFieldSection extends StatelessWidget {
   final Function(String) onEmailChanged;
   final Function(String) onPhoneChanged;
   final Function(String) onPasswordChanged;
+  final Function onDone;
   const TextFieldSection({
     required this.onNameChanged,
     required this.onEmailChanged,
     required this.onPhoneChanged,
     required this.onPasswordChanged,
+    required this.onDone,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppDimen.MARGIN_MEDIUM_2),
-      child: Column(
-        children: [
-          FilledTextField(
-              textInputAction: TextInputAction.next,
-              fontFamily: 'Poppins',
-              filledColor: AppColor.lightWhite,
-              hintText: 'Full Name',
-              onChanged: (text) {
-                onNameChanged(text);
-              }),
-          SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
-          FilledTextField(
-              textInputAction: TextInputAction.next,
-              fontFamily: 'Poppins',
-              filledColor: AppColor.lightWhite,
-              hintText: 'Email Address',
-              onChanged: (text) {
-                onEmailChanged(text);
-              }),
-          SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
-          FilledTextField(
-              textInputAction: TextInputAction.next,
-              fontFamily: 'Poppins',
-              filledColor: AppColor.lightWhite,
-              hintText: 'Phone Number',
-              onChanged: (text) {
-                onPhoneChanged(text);
-              }),
-          SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
-          FilledTextField(
-              textInputAction: TextInputAction.next,
-              fontFamily: 'Poppins',
-              filledColor: AppColor.lightWhite,
-              hintText: 'Password',
-              onChanged: (text) {
-                onPasswordChanged(text);
-              }),
-        ],
-      ),
+    return BlocBuilder<RegisterBloc, RegisterState>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppDimen.MARGIN_MEDIUM_2),
+          child: Column(
+            children: [
+              FilledTextField(
+                  textInputAction: TextInputAction.next,
+                  fontFamily: 'Poppins',
+                  filledColor: AppColor.lightWhite,
+                  hintText: 'Full Name',
+                  enable: !state.isLoading,
+                  onImeAction: () {},
+                  onChanged: (text) {
+                    onNameChanged(text);
+                  }),
+              SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
+              FilledTextField(
+                  textInputAction: TextInputAction.next,
+                  fontFamily: 'Poppins',
+                  filledColor: AppColor.lightWhite,
+                  hintText: 'Email Address',
+                  enable: !state.isLoading,
+                  onImeAction: () {},
+                  onChanged: (text) {
+                    onEmailChanged(text);
+                  }),
+              SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
+              FilledTextField(
+                  textInputAction: TextInputAction.next,
+                  fontFamily: 'Poppins',
+                  filledColor: AppColor.lightWhite,
+                  hintText: 'Phone Number',
+                  enable: !state.isLoading,
+                  onImeAction: () {},
+                  onChanged: (text) {
+                    onPhoneChanged(text);
+                  }),
+              SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
+              FilledTextField(
+                  textInputAction: TextInputAction.done,
+                  fontFamily: 'Poppins',
+                  filledColor: AppColor.lightWhite,
+                  hintText: 'Password',
+                  enable: !state.isLoading,
+                  onImeAction: () {
+                    onDone();
+                  },
+                  onChanged: (text) {
+                    onPasswordChanged(text);
+                  }),
+            ],
+          ),
+        );
+      },
     );
   }
 }

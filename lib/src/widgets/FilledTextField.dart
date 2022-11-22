@@ -8,17 +8,21 @@ class FilledTextField extends StatefulWidget {
   final String hintText;
   final String? fontFamily;
   final int maxLines;
+  final bool enable;
   final TextInputAction textInputAction;
   final Function(String) onChanged;
+  final Function onImeAction;
 
   FilledTextField({
     Key? key,
     this.filledColor = Colors.white,
     this.fontFamily,
     this.maxLines = 1,
+    this.enable = true,
     this.textInputAction = TextInputAction.next,
     this.hintText = "",
     required this.onChanged,
+    required this.onImeAction,
   }) : super(key: key);
 
   @override
@@ -40,7 +44,11 @@ class _FilledTextFieldState extends State<FilledTextField> {
       controller: textEditingController,
       onChanged: widget.onChanged,
       maxLines: widget.maxLines,
+      enabled: widget.enable,
       textInputAction: TextInputAction.next,
+      onSubmitted: (value) {
+        widget.onImeAction();
+      },
       style: TextStyle(fontFamily: widget.fontFamily, decoration: TextDecoration.none),
       decoration: InputDecoration(
           border: OutlineInputBorder(
