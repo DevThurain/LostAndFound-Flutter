@@ -34,7 +34,7 @@ class _BasedScreenState extends State<BasedScreen> {
           return Builder(builder: (context) {
             return Scaffold(
               body: PageView(
-                physics: BouncingScrollPhysics(),
+                physics: ClampingScrollPhysics(),
                 controller: _pageController,
                 scrollDirection: Axis.horizontal,
                 children: _screenList,

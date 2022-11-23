@@ -45,8 +45,7 @@ class _AddItemTagSectionState extends State<AddItemTagSection> {
                           selectedTagList.remove(tappedTag.name);
                         });
                       }
-
-                      print(selectedTagList.toString());
+                      widget.onTagListChanged(selectedTagList);
                     }))
                 .toList(),
           )

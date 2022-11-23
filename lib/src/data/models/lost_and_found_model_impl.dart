@@ -153,6 +153,7 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
         "address": item.address,
         "lat": item.lat,
         "lon": item.lon,
+        "tags": FieldValue.arrayUnion(item.tags),
         "uuid": item.uuid,
         "userName": item.userName,
         "userProfile": item.userProfile

@@ -6,24 +6,26 @@ class ItemVO {
   final double lat;
   final double lon;
   final String address;
+  List<String> tags;
   String photoPath;
   String uuid;
   String userName;
   String userProfile;
 
-  ItemVO(
-      {this.timestamp = "",
-      required this.name,
-      required this.description,
-      required this.contactInfo,
-      required this.lat,
-      required this.lon,
-      required this.address,
-      this.photoPath = "",
-      this.uuid = "",
-      this.userName = "",
-      this.userProfile = "",
-      });
+  ItemVO({
+    this.timestamp = "",
+    required this.name,
+    required this.description,
+    required this.contactInfo,
+    required this.lat,
+    required this.lon,
+    required this.address,
+    required this.tags,
+    this.photoPath = "",
+    this.uuid = "",
+    this.userName = "",
+    this.userProfile = "",
+  });
 
   Map<String, dynamic> toJson() {
     return {

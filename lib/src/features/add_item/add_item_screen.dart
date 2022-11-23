@@ -52,6 +52,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
         _itemName.isNotEmpty &&
         _itemDetail.isNotEmpty &&
         _itemContactInfo.isNotEmpty &&
+        _selectedTag.isNotEmpty &&
         _lat != 0.0 &&
         _lon != 0.0;
   }
@@ -89,6 +90,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   AddItemTagSection(
                     onTagListChanged: (tagList) {
                       _selectedTag = tagList;
+                      print('tag --->' + _selectedTag.toString());
                     },
                   ),
                   SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
@@ -147,6 +149,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                                   contactInfo: _itemContactInfo,
                                   lat: _lat,
                                   lon: _lon,
+                                  tags: _selectedTag,
                                   photoPath: _photoPath,
                                   address: _address);
                               context.read<AddItemBloc>().add(EventOnAddItem(item));
@@ -171,7 +174,6 @@ class _AddItemScreenState extends State<AddItemScreen> {
     });
   }
 }
-
 
 class UploadButtonSection extends StatelessWidget {
   final Function onUpload;
