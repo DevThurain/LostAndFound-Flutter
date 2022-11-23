@@ -38,7 +38,6 @@ class _MapAndAddressWidgetState extends State<MapAndAddressWidget> {
                   _address;
                 });
                 widget.onGetAddress(_address);
-
               },
               getLocation: (location) {
                 widget.onGetLocation(location);
@@ -49,7 +48,6 @@ class _MapAndAddressWidgetState extends State<MapAndAddressWidget> {
         SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
         PoppinText(
           "Found Location - $_address",
-          style: TextStyle(fontSize: AppDimen.TEXT_REGULAR_2X),
         ),
       ],
     );

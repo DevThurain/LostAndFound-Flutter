@@ -52,7 +52,7 @@ class _PickImageSectionState extends State<PickImageSection> {
       children: [
         PoppinText(
           "Select Image",
-          style: TextStyle(fontSize: AppDimen.TEXT_REGULAR_2X),
+         
         ),
         SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
         GestureDetector(

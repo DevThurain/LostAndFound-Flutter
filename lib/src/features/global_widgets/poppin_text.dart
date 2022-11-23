@@ -12,7 +12,7 @@ class PoppinText extends StatelessWidget {
       text,
       style: style.copyWith(
         fontFamily: 'Poppins',
-        fontSize: AppDimen.TEXT_REGULAR,
+        fontSize: style.fontSize ?? AppDimen.TEXT_REGULAR,
       ),
     );
   }

@@ -4,15 +4,20 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lost_and_found/src/core/constants/app_color.dart';
+import 'package:lost_and_found/src/core/constants/app_constants.dart';
 import 'package:lost_and_found/src/core/constants/app_dimen.dart';
 import 'package:lost_and_found/src/data/models/lost_and_found_model.dart';
 import 'package:lost_and_found/src/data/models/lost_and_found_model_impl.dart';
 import 'package:lost_and_found/src/data/vos/item_vo.dart';
+import 'package:lost_and_found/src/data/vos/tag_vo.dart';
 import 'package:lost_and_found/src/features/add_item/bloc/add_item_bloc.dart';
+import 'package:lost_and_found/src/features/add_item/widgets/add_tag_section.dart';
 import 'package:lost_and_found/src/features/add_item/widgets/map_and_address_widget.dart';
 import 'package:lost_and_found/src/features/add_item/widgets/pick_image_section.dart';
 import 'package:lost_and_found/src/features/global_widgets/google_map_section.dart';
 import 'package:lost_and_found/src/features/global_widgets/poppin_text.dart';
+import 'package:lost_and_found/src/features/global_widgets/tag_expanded.dart';
+import 'package:lost_and_found/src/features/global_widgets/tag_normal.dart';
 import 'package:lost_and_found/src/widgets/FilledTextField.dart';
 import 'dart:async';
 
@@ -34,6 +39,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
   String _itemContactInfo = "";
   double _lat = 0.0;
   double _lon = 0.0;
+  List<String> _selectedTag = [];
 
   @override
   void initState() {
@@ -77,6 +83,12 @@ class _AddItemScreenState extends State<AddItemScreen> {
                     },
                     onContactInfoChanged: (itemContactInfo) {
                       _itemContactInfo = itemContactInfo;
+                    },
+                  ),
+                  SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
+                  AddItemTagSection(
+                    onTagListChanged: (tagList) {
+                      _selectedTag = tagList;
                     },
                   ),
                   SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
@@ -160,6 +172,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
   }
 }
 
+
 class UploadButtonSection extends StatelessWidget {
   final Function onUpload;
   const UploadButtonSection({
@@ -212,7 +225,10 @@ class AddItemTitleSection extends StatelessWidget {
         PoppinText(
           "Add Item",
           style: TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: AppDimen.TEXT_REGULAR_3X),
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: AppDimen.TEXT_REGULAR_2X,
+          ),
         ),
         IconButton(
           icon: Icon(Icons.more_vert),

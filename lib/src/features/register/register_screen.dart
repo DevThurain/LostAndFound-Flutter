@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lost_and_found/src/core/constants/app_color.dart';
@@ -185,33 +186,36 @@ class ButtonSection extends StatelessWidget {
             ),
           ),
           SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
-          GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Text.rich(
-              TextSpan(children: [
-                TextSpan(
-                  text: "Already have an account?",
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: AppColor.black,
-                    fontSize: AppDimen.TEXT_REGULAR,
+          FadeInDown(
+            from: 30,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Text.rich(
+                TextSpan(children: [
+                  TextSpan(
+                    text: "Already have an account?",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: AppColor.black,
+                      fontSize: AppDimen.TEXT_REGULAR,
+                    ),
                   ),
-                ),
-                WidgetSpan(
-                    child: SizedBox(
-                  width: AppDimen.MARGIN_MEDIUM,
-                )),
-                TextSpan(
-                  text: "Sign In",
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: AppColor.violet,
-                    fontSize: AppDimen.TEXT_REGULAR,
+                  WidgetSpan(
+                      child: SizedBox(
+                    width: AppDimen.MARGIN_MEDIUM,
+                  )),
+                  TextSpan(
+                    text: "Sign In",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: AppColor.violet,
+                      fontSize: AppDimen.TEXT_REGULAR,
+                    ),
                   ),
-                ),
-              ]),
+                ]),
+              ),
             ),
           )
         ],
