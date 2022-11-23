@@ -87,13 +87,6 @@ class _AddItemScreenState extends State<AddItemScreen> {
                     },
                   ),
                   SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
-                  AddItemTagSection(
-                    onTagListChanged: (tagList) {
-                      _selectedTag = tagList;
-                      print('tag --->' + _selectedTag.toString());
-                    },
-                  ),
-                  SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: AppDimen.MARGIN_MEDIUM_2),
                     child: MapAndAddressWidget(onGetAddress: (address) {
@@ -113,6 +106,14 @@ class _AddItemScreenState extends State<AddItemScreen> {
                           _photoPath = imagePath;
                         },
                       )),
+                  SizedBox(height: AppDimen.MARGIN_MEDIUM),
+                  Divider(thickness: 1),
+                  AddItemTagSection(
+                    onTagListChanged: (tagList) {
+                      _selectedTag = tagList;
+                      print('tag --->' + _selectedTag.toString());
+                    },
+                  ),
                   SizedBox(height: AppDimen.MARGIN_LARGE),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: AppDimen.MARGIN_MEDIUM_2),

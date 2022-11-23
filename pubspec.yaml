@@ -31,6 +31,7 @@ dependencies:
   pull_to_refresh: ^2.0.0
   animate_do: ^3.0.2
   flutter_svg: ^1.1.6
+  lit_relative_date_time: ^1.2.0
 
 
   

@@ -5,8 +5,10 @@ import 'package:lost_and_found/src/core/constants/app_color.dart';
 import 'package:lost_and_found/src/core/constants/app_dimen.dart';
 import 'package:lost_and_found/src/data/vos/tag_vo.dart';
 import 'package:lost_and_found/src/features/add_item/add_item_screen.dart';
+import 'package:lost_and_found/src/features/global_widgets/item_view.dart';
 import 'package:lost_and_found/src/features/global_widgets/poppin_text.dart';
 import 'package:lost_and_found/src/features/global_widgets/tag_expanded.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = "home_screen";
@@ -17,19 +19,26 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMixin {
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         Positioned.fill(
-          child: SingleChildScrollView(
-            child: SafeArea(
-              child: Column(
-                children: [
-                  HomeTitleSection(),
-                  SizedBox(height: AppDimen.MARGIN_MEDIUM),
-                  HomeTagSection(),
-                ],
+          child: SmartRefresher(
+            controller: _refreshController,
+            onRefresh: () {},
+            header: MaterialClassicHeader(),
+            child: SingleChildScrollView(
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    HomeTitleSection(),
+                    SizedBox(height: AppDimen.MARGIN_MEDIUM),
+                    HomeTagSection(),
+                    HomeItemSection(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -58,6 +67,22 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   @override
   bool get wantKeepAlive => true;
 }
+
+class HomeItemSection extends StatelessWidget {
+  const HomeItemSection({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+        physics: NeverScrollableScrollPhysics(),
+        itemCount: 24,
+        shrinkWrap: true,
+        itemBuilder: ((context, index) => ItemView()));
+  }
+}
+
 
 class HomeTitleSection extends StatelessWidget {
   const HomeTitleSection({
@@ -148,4 +173,3 @@ class HomeTagSection extends StatelessWidget {
     );
   }
 }
-
