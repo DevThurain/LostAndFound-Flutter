@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lost_and_found/src/core/constants/app_color.dart';
 import 'package:lost_and_found/src/core/constants/app_dimen.dart';
@@ -10,6 +11,8 @@ import 'package:lost_and_found/src/features/global_widgets/poppin_text.dart';
 import 'package:lost_and_found/src/features/global_widgets/tag_expanded.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import 'bloc/home_bloc.dart';
+
 class HomeScreen extends StatefulWidget {
   static const routeName = "home_screen";
   const HomeScreen({Key? key}) : super(key: key);
@@ -19,48 +22,106 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMixin {
-  RefreshController _refreshController = RefreshController(initialRefresh: false);
+  late RefreshController _refreshController;
+
+  @override
+  void initState() {
+    _refreshController = RefreshController(initialRefresh: true);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: SmartRefresher(
-            controller: _refreshController,
-            onRefresh: () {},
-            header: MaterialClassicHeader(),
-            child: SingleChildScrollView(
-              child: SafeArea(
-                child: Column(
-                  children: [
-                    HomeTitleSection(),
-                    SizedBox(height: AppDimen.MARGIN_MEDIUM),
-                    HomeTagSection(),
-                    HomeItemSection(),
-                  ],
+    return BlocProvider<HomeBloc>(
+      create: (context) => HomeBloc(),
+      child: Builder(builder: (context) {
+        return Stack(
+          children: [
+            BlocBuilder<HomeBloc, HomeState>(
+              builder: (context, state) {
+                return Positioned.fill(
+                  child: SmartRefresher(
+                    controller: _refreshController,
+                    enablePullUp: !context.read<HomeBloc>().reachEnd,
+                    onRefresh: () {
+                      context.read<HomeBloc>().add(EventGetHomeFirstData());
+                    },
+                    onLoading: () {
+                      context.read<HomeBloc>().add(EventGetHomeNextData());
+                    },
+                    header: MaterialClassicHeader(),
+                    child: SingleChildScrollView(
+                      child: SafeArea(
+                        child: BlocListener<HomeBloc, HomeState>(
+                          listener: (context, state) {
+                            if (state.isLoading) {
+                              // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              //     content: Text("please wait ..."),
+                              //     backgroundColor: AppColor.violet));
+                            }
+
+                            if (state.appError != null) {
+                              _refreshController.refreshCompleted();
+                              _refreshController.loadComplete();
+                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                  content: Text(state.appError?.errorMessage ?? ""),
+                                  backgroundColor: Colors.redAccent));
+                            }
+
+                            if (state.isSuccess) {
+                              _refreshController.refreshCompleted();
+                              _refreshController.loadComplete();
+                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+                              // Navigator.pushNamedAndRemoveUntil(
+                              //     context, BasedScreen.routeName, (route) => false);
+                            }
+                          },
+                          child: Column(
+                            children: [
+                              HomeTitleSection(),
+                              SizedBox(height: AppDimen.MARGIN_MEDIUM),
+                              HomeTagSection(),
+                              HomeItemSection(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            Builder(builder: (context) {
+              return Align(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimen.MARGIN_MEDIUM_2, vertical: AppDimen.MARGIN_MEDIUM_2),
+                  child: ElasticIn(
+                    child: FloatingActionButton(
+                      onPressed: () async {
+                        var shouldRefresh =
+                            await Navigator.pushNamed(context, AddItemScreen.routeName);
+                        if (shouldRefresh != null) {
+                          shouldRefresh = shouldRefresh as bool;
+                          if (shouldRefresh) {
+                             context.read<HomeBloc>().add(EventGetHomeFirstData());
+                          }
+                        }
+                      },
+                      backgroundColor: AppColor.violet,
+                      splashColor: AppColor.white,
+                      child: Icon(Icons.add),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
-        ),
-        Align(
-          alignment: Alignment.bottomRight,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppDimen.MARGIN_MEDIUM_2, vertical: AppDimen.MARGIN_MEDIUM_2),
-            child: ElasticIn(
-              child: FloatingActionButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, AddItemScreen.routeName);
-                },
-                backgroundColor: AppColor.violet,
-                splashColor: AppColor.white,
-                child: Icon(Icons.add),
-              ),
-            ),
-          ),
-        ),
-      ],
+              );
+            }),
+          ],
+        );
+      }),
     );
   }
 
@@ -75,14 +136,21 @@ class HomeItemSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-        physics: NeverScrollableScrollPhysics(),
-        itemCount: 24,
-        shrinkWrap: true,
-        itemBuilder: ((context, index) => ItemView()));
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        return ListView.builder(
+           padding: EdgeInsets.only(bottom: AppDimen.MARGIN_MEDIUM_2),
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: state.itemList.length,
+            shrinkWrap: true,
+            itemBuilder: ((context, index) => ItemView(
+                  item: state.itemList[index],
+                  onTapItem: (item) {},
+                )));
+      },
+    );
   }
 }
-
 
 class HomeTitleSection extends StatelessWidget {
   const HomeTitleSection({
@@ -158,18 +226,24 @@ class HomeTagSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 40,
-      child: ListView.builder(
-          padding: EdgeInsets.only(right: AppDimen.MARGIN_MEDIUM_2),
-          scrollDirection: Axis.horizontal,
-          itemCount: 12,
-          itemBuilder: (context, position) {
-            return TagExpanded(
-              tag: TagVO(name: "Wallet", selected: true),
-              onTapTag: (tag) {},
-            );
-          }),
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        return SizedBox(
+          height: 40,
+          child: ListView.builder(
+              padding: EdgeInsets.only(right: AppDimen.MARGIN_MEDIUM_2),
+              scrollDirection: Axis.horizontal,
+              itemCount: state.tagList.length,
+              itemBuilder: (context, position) {
+                return TagExpanded(
+                  tag: TagVO(
+                      name: state.tagList[position].name,
+                      selected: state.tagList[position].selected),
+                  onTapTag: (tag) {},
+                );
+              }),
+        );
+      },
     );
   }
 }

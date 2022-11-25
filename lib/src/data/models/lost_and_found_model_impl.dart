@@ -130,7 +130,7 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
     item.uuid = UserDao().getUserList().first.uuid;
     item.userName = UserDao().getUserList().first.fullName;
     item.userProfile = UserDao().getUserList().first.profileUrl;
-    
+
     // Create a storage reference from our app
     final storageRef = FirebaseStorage.instance.ref();
 
@@ -168,8 +168,105 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
     }
   }
 
-  // await Future.delayed(Duration(seconds: 2));
+  @override
+  Future<Either<AppError, List<ItemVO>>> fetchItems(List<ItemVO> itemList, int limit) async {
+    try {
+      var value = await FirebaseFirestore.instance.collection("items").orderBy("timestamp").get();
 
-  // // return Left(AppError(errorMessage: "Mock Error"));
-  // return Right(UserVO("", "", "", "", "", "", ""));
+      var docs = value.docs;
+
+      List<ItemVO> newItems = [];
+      docs.forEach((document) {
+        var data = document.data();
+        newItems.add(ItemVO(
+            name: data['name'],
+            description: data['description'],
+            contactInfo: data['contactInfo'],
+            lat: data['lat'],
+            lon: data['lon'],
+            address: data['address'],
+            photoPath: data['photoPath'],
+            tags: []));
+      });
+
+      return Right(newItems);
+    } on FirebaseException catch (e) {
+      return Left(AppError(errorMessage: e.message ?? "unknown firestore error"));
+    }
+  }
+
+  @override
+  Future<Either<AppError, Map<String, dynamic>>> fetchFirstItems(int limit) async {
+    try {
+      var value = await FirebaseFirestore.instance
+          .collection("items")
+            .orderBy("timestamp",descending: true)
+          .limit(limit)
+          .get();
+
+      var docs = value.docs;
+      print('-----------------> fectch first');
+
+      List<ItemVO> newItems = [];
+      docs.forEach((document) {
+        var data = document.data();
+        newItems.add(ItemVO(
+            name: data['name'],
+            description: data['description'],
+            contactInfo: data['contactInfo'],
+            lat: data['lat'],
+            lon: data['lon'],
+            address: data['address'],
+            photoPath: data['photoPath'],
+            tags: List.from(data['tags'])));
+      });
+
+      var map = <String, dynamic>{"items": newItems, "documents": value.docs};
+
+      return Right(map);
+    } on FirebaseException catch (e) {
+      return Left(AppError(errorMessage: e.message ?? "unknown firestore error"));
+    }
+  }
+
+  @override
+  Future<Either<AppError, Map<String, dynamic>>> fetchNextItems(
+      List<DocumentSnapshot> documentList, int limit) async {
+    try {
+      if (documentList.isNotEmpty) {
+        var value = await FirebaseFirestore.instance
+            .collection("items")
+            .orderBy("timestamp",descending: true)
+            .startAfterDocument(documentList[documentList.length - 1])
+            .limit(limit)
+            .get();
+
+        var docs = value.docs;
+        print('-----------------> fectch next');
+
+        List<ItemVO> newItems = [];
+        docs.forEach((document) {
+          var data = document.data();
+          newItems.add(ItemVO(
+              name: data['name'],
+              description: data['description'],
+              contactInfo: data['contactInfo'],
+              lat: data['lat'],
+              lon: data['lon'],
+              address: data['address'],
+              photoPath: data['photoPath'],
+              tags: List.from(data['tags'])));
+        });
+
+        var map = <String, dynamic>{"items": newItems, "documents": value.docs};
+
+        return Right(map);
+      } else {
+        var map = <String, dynamic>{"items": List<ItemVO>.empty(), "documents": List<DocumentSnapshot>.empty()};
+        return Right(map);
+      }
+    } on FirebaseException catch (e) {
+      return Left(AppError(errorMessage: e.message ?? "unknown firestore error"));
+    }
+  }
 }

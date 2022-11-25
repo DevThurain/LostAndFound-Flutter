@@ -38,10 +38,12 @@ class _PickImageSectionState extends State<PickImageSection> {
 
   void _pickItemImage() async {
     _itemImage = await _picker.pickImage(source: ImageSource.gallery);
-    widget.onPickImage(_itemImage!.path);
-    setState(() {
-      _itemImage;
-    });
+    if (_itemImage != null) {
+      widget.onPickImage(_itemImage!.path);
+      setState(() {
+        _itemImage;
+      });
+    }
   }
 
   @override
@@ -52,7 +54,6 @@ class _PickImageSectionState extends State<PickImageSection> {
       children: [
         PoppinText(
           "Select Image",
-         
         ),
         SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
         GestureDetector(

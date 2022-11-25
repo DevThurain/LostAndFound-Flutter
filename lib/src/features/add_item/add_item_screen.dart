@@ -123,7 +123,9 @@ class _AddItemScreenState extends State<AddItemScreen> {
                           if (state.isLoading) {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content: Text("please wait ..."),
-                                backgroundColor: AppColor.violet));
+                                backgroundColor: AppColor.violet,
+                                duration: Duration(seconds: 8),
+                                ));
                           }
 
                           if (state.appError != null) {
@@ -138,7 +140,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content: Text("success"), backgroundColor: AppColor.violet));
 
-                            Navigator.pop(context);
+                            Navigator.pop(context, true);
                           }
                         },
                         child: UploadButtonSection(

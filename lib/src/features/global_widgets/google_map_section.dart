@@ -43,6 +43,7 @@ class _MapSectionState extends State<GoogleMapSection> {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text("Location Permission Granted.")));
 
+      
       await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high).then((value) {
         setState(() {
           _selectedPosition = LatLng(value.latitude, value.longitude);
