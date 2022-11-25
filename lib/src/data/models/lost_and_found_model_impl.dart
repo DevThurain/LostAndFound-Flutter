@@ -200,7 +200,7 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
     try {
       var value = await FirebaseFirestore.instance
           .collection("items")
-            .orderBy("timestamp",descending: true)
+          .orderBy("timestamp", descending: true)
           .limit(limit)
           .get();
 
@@ -218,6 +218,7 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
             lon: data['lon'],
             address: data['address'],
             photoPath: data['photoPath'],
+            timestamp: data['timestamp'],
             tags: List.from(data['tags'])));
       });
 
@@ -236,7 +237,7 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
       if (documentList.isNotEmpty) {
         var value = await FirebaseFirestore.instance
             .collection("items")
-            .orderBy("timestamp",descending: true)
+            .orderBy("timestamp", descending: true)
             .startAfterDocument(documentList[documentList.length - 1])
             .limit(limit)
             .get();
@@ -255,6 +256,7 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
               lon: data['lon'],
               address: data['address'],
               photoPath: data['photoPath'],
+              timestamp: data['timestamp'],
               tags: List.from(data['tags'])));
         });
 
@@ -262,7 +264,10 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
 
         return Right(map);
       } else {
-        var map = <String, dynamic>{"items": List<ItemVO>.empty(), "documents": List<DocumentSnapshot>.empty()};
+        var map = <String, dynamic>{
+          "items": List<ItemVO>.empty(),
+          "documents": List<DocumentSnapshot>.empty()
+        };
         return Right(map);
       }
     } on FirebaseException catch (e) {

@@ -89,7 +89,7 @@ class ItemView extends StatelessWidget {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(AppDimen.MARGIN_MEDIUM_2)),
                 child: PoppinText(
-                  MyDateUtils.getReadableDate(context),
+                  MyDateUtils.getReadableDate(context, item.timestamp.toString()),
                   style: TextStyle(
                     fontSize: AppDimen.TEXT_XSMALL,
                   ),
