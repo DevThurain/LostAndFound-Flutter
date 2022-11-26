@@ -16,9 +16,9 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       if (event is EventOnLogin) {
         emit(LoginState(isLoading: true));
 
-        var registerEvent = event;
+        var loginEvent = event;
         Either<AppError, UserVO> registerResponse =
-            await _lostAndFoundModelImpl.loginUser(registerEvent.userVO);
+            await _lostAndFoundModelImpl.loginUser(loginEvent.email, loginEvent.password);
 
         registerResponse.fold((left) {
           emit(LoginState(appError: left));

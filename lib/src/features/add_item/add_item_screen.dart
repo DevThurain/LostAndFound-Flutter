@@ -146,16 +146,16 @@ class _AddItemScreenState extends State<AddItemScreen> {
                         child: UploadButtonSection(
                           onUpload: () {
                             if (_validateInput()) {
-                              ItemVO item = ItemVO(
-                                  name: _itemName,
-                                  description: _itemDetail,
-                                  contactInfo: _itemContactInfo,
-                                  lat: _lat,
-                                  lon: _lon,
-                                  tags: _selectedTag,
-                                  photoPath: _photoPath,
-                                  address: _address);
-                              context.read<AddItemBloc>().add(EventOnAddItem(item));
+                              context.read<AddItemBloc>().add(EventOnAddItem(
+                                name: _itemName,
+                                description: _itemDetail,
+                                conteacInfo: _itemContactInfo,
+                                lat: _lat,
+                                lon: _lon,
+                                tags: _selectedTag,
+                                photoPath: _photoPath,
+                                address: _address
+                              ));
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                   duration: Duration(milliseconds: 1000),

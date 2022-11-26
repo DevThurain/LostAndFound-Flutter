@@ -15,15 +15,8 @@ class UserDao {
     openUserBox().delete(uuid);
   }
 
-  void deleteAllUser() {
-    var userList = getUserList();
-    userList.forEach((user) {
-      openUserBox().delete(user.uuid);
-    });
-  }
-
-  List<UserVO> getUserList() {
-    return openUserBox().values.toList();
+  UserVO? getUser(String uuid) {
+    return openUserBox().get(uuid);
   }
 
   Box<UserVO> openUserBox() {

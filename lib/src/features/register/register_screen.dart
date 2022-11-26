@@ -66,8 +66,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               email.isNotEmpty &&
                               phone.isNotEmpty &&
                               password.isNotEmpty) {
-                            UserVO user = UserVO(name, email, password, phone, "", "", "");
-                            context.read<RegisterBloc>().add(EventOnRegister(userVO: user));
+                            context.read<RegisterBloc>().add(EventOnRegister(fullName: name, email: email, phone: phone, password: password));
                           }
                         },
                         onEmailChanged: (text) {
@@ -116,8 +115,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   email.isNotEmpty &&
                                   phone.isNotEmpty &&
                                   password.isNotEmpty) {
-                                UserVO user = UserVO(name, email, password, phone, "", "", "");
-                                context.read<RegisterBloc>().add(EventOnRegister(userVO: user));
+                            context.read<RegisterBloc>().add(EventOnRegister(fullName: name, email: email, phone: phone, password: password));
                               }
                             },
                           );

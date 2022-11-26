@@ -17,9 +17,18 @@ class AddItemBloc extends Bloc<AddItemEvent, AddItemState> {
       if (event is EventOnAddItem) {
         emit(AddItemState(isLoading: true));
 
-        var registerEvent = event;
+        var uploadEvent = event;
         Either<AppError, ItemVO> uploadResponse =
-            await _lostAndFoundModelImpl.uploadItem(registerEvent.item);
+            await _lostAndFoundModelImpl.uploadItem(
+              uploadEvent.name,
+              uploadEvent.description,
+              uploadEvent.conteacInfo,
+              uploadEvent.lat,
+              uploadEvent.lon,
+              uploadEvent.address,
+              uploadEvent.photoPath,
+              uploadEvent.tags
+            );
 
         uploadResponse.fold((left) {
           emit(AddItemState(appError: left));

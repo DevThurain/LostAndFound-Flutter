@@ -90,21 +90,21 @@ class ProfileDetail extends StatelessWidget {
       children: [
         ProfileTextRow(
           title: 'full name',
-          text: UserDao().getUserList().first.fullName,
+          text: UserDao().getUser(FirebaseAuth.instance.currentUser!.uid)?.fullName ?? "-",
           iconData: Icons.person_outline,
           borderColor: AppColor.violet,
         ),
         SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
         ProfileTextRow(
           title: 'email',
-          text: UserDao().getUserList().first.email,
+          text: UserDao().getUser(FirebaseAuth.instance.currentUser!.uid)?.email ?? "-",
           iconData: Icons.email_outlined,
           borderColor: AppColor.grey,
         ),
         SizedBox(height: AppDimen.MARGIN_MEDIUM_2),
         ProfileTextRow(
           title: 'phone',
-          text: UserDao().getUserList().first.phone,
+          text: UserDao().getUser(FirebaseAuth.instance.currentUser!.uid)?.phone ?? "-",
           iconData: Icons.phone_outlined,
           borderColor: AppColor.grey,
         ),
@@ -210,7 +210,7 @@ class ProfilePictureSection extends StatelessWidget {
             size: 75,
             color: AppColor.violet,
             icon: PoppinText(
-              UserDao().getUserList().first.fullName.characters.first,
+             UserDao().getUser(FirebaseAuth.instance.currentUser!.uid)?.fullName.characters.first ?? '-',
               style: TextStyle(
                 fontSize: AppDimen.TEXT_HEADING_1X,
               ),

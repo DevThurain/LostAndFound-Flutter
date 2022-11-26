@@ -52,8 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     FocusManager.instance.primaryFocus?.unfocus();
 
                     if (email.isNotEmpty && password.isNotEmpty) {
-                      UserVO userVO = UserVO("", email, password, "", "", "", "");
-                      context.read<LoginBloc>().add(EventOnLogin(userVO: userVO));
+                      context.read<LoginBloc>().add(EventOnLogin(email: email, password: password));
                     }
                   },
                 );
@@ -88,8 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     FocusManager.instance.primaryFocus?.unfocus();
 
                     if (email.isNotEmpty && password.isNotEmpty) {
-                      UserVO userVO = UserVO("", email, password, "", "", "", "");
-                      context.read<LoginBloc>().add(EventOnLogin(userVO: userVO));
+                      context.read<LoginBloc>().add(EventOnLogin(email: email, password: password));
                     }
                   },
                   onTapRegister: () {

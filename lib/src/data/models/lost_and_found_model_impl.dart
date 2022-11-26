@@ -12,45 +12,37 @@ import 'package:lost_and_found/src/data/vos/app_error.dart';
 import 'package:lost_and_found/src/persistence/daos/user_dao.dart';
 
 class LostAndFoundModelImpl extends LostAndFoundModel {
-  // static final LostAndFoundModelImpl _instance = LostAndFoundModelImpl._internal();
+  static final LostAndFoundModelImpl _singleton = LostAndFoundModelImpl._internal();
 
-  // factory LostAndFoundModelImpl._internal() {
-  //   return _instance;
-  // }
+  factory LostAndFoundModelImpl() {
+    return _singleton;
+  }
 
-  // static LostAndFoundModelImpl get instance {
-  //   return _instance;
-  // }
+  LostAndFoundModelImpl._internal();
 
   @override
-  Future<Either<AppError, UserVO>> registerUser(UserVO user) async {
+  Future<Either<AppError, UserVO>> registerUser(String fullName, String email, String phone, String password) async {
     try {
       // add to firebase auth
       final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: user.email,
-        password: user.password,
+        email: email,
+        password: password,
       );
 
-      user.uuid = credential.user?.uid ?? "";
-      user.token = credential.credential?.accessToken ?? "";
+      String uuid = credential.user?.uid ?? "";
+      String token = credential.credential?.accessToken ?? "";
 
       // add to firestore
-      final storeUser = <String, String>{
-        "name": user.fullName,
-        "email": user.email,
-        "password": user.password,
-        "phone": user.phone,
-        "profileUrl": user.profileUrl,
-        "token": user.token
-      };
+      final storeUser = UserVO(
+          fullName: fullName, email: email, phone: phone, uuid: uuid, token: token, profileUrl: '');
 
-      var doc = FirebaseFirestore.instance.collection("users").doc(user.uuid);
-      doc.set(storeUser);
+      var doc = FirebaseFirestore.instance.collection("users").doc(uuid);
+      doc.set(storeUser.toFirestore());
 
       // add to db
-      UserDao().addUser(user);
+      UserDao().addUser(storeUser);
 
-      return Right(user);
+      return Right(storeUser);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         return Left(AppError(errorMessage: "The password provided is too weak."));
@@ -64,46 +56,20 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
   }
 
   @override
-  Future<Either<AppError, UserVO>> loginUser(UserVO user) async {
+  Future<Either<AppError, UserVO>> loginUser(String email, String password) async {
     try {
-      final credential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: user.email, password: user.password);
+      final credential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
 
-      user.uuid = credential.user?.uid ?? "";
-      user.token = credential.credential?.accessToken ?? "";
+      String uuid = credential.user?.uid ?? "";
+      String token = credential.credential?.accessToken ?? "";
 
-      // FirebaseFirestore.instance.collection("users").doc(user.uuid).get().then((value) {
-      //   var dataMap = value.data();
-      //   if (dataMap != null) {
-      //     var newUser = UserVO(
-      //       dataMap["name"],
-      //       dataMap["email"],
-      //       dataMap["password"],
-      //       dataMap["phone"],
-      //       user.token,
-      //       dataMap["profileUrl"],
-      //       user.uuid,
-      //     );
-      //     UserDao().addUser(newUser);
-      //     return Right(user);
-      //   }
-      // });
+      var snapShot = await FirebaseFirestore.instance.collection("users").doc(uuid).get();
 
-      var value = await FirebaseFirestore.instance.collection("users").doc(user.uuid).get();
-      var dataMap = value.data();
-      if (dataMap != null) {
-        var newUser = UserVO(
-          dataMap["name"],
-          dataMap["email"],
-          dataMap["password"],
-          dataMap["phone"],
-          user.token,
-          dataMap["profileUrl"],
-          user.uuid,
-        );
-        UserDao().addUser(newUser);
-        return Right(user);
-      }
+      UserVO storeUser = UserVO.fromFireStore(snapShot);
+
+      UserDao().addUser(storeUser);
+      return Right(storeUser);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         return Left(AppError(errorMessage: 'No user found for that email.'));
@@ -112,86 +78,59 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
       } else {
         return Left(AppError(errorMessage: e.toString()));
       }
+    } catch (e) {
+      return Left(AppError(errorMessage: e.toString()));
     }
-    return Left(AppError(errorMessage: "Unknown Error"));
   }
 
   @override
   Future<Either<AppError, String>> logoutUser() async {
-    UserDao().deleteAllUser();
+    try {
+      await FirebaseAuth.instance.signOut();
+      UserDao().deleteUser(FirebaseAuth.instance.currentUser!.uid);
+    } catch (e) {
+      return Left(AppError(errorMessage: e.toString()));
+    }
 
-    await FirebaseAuth.instance.signOut();
     return Right("success");
   }
 
   @override
-  Future<Either<AppError, ItemVO>> uploadItem(ItemVO item) async {
-    item.timestamp = DateTime.now().microsecondsSinceEpoch.toString();
-    item.uuid = UserDao().getUserList().first.uuid;
-    item.userName = UserDao().getUserList().first.fullName;
-    item.userProfile = UserDao().getUserList().first.profileUrl;
+  Future<Either<AppError, ItemVO>> uploadItem(String name, String description, String contactInfo,double lat, double lon, String address, String photoPath, List<String> tags) async {
+    int timestamp = DateTime.now().microsecondsSinceEpoch;
+    String uuid = FirebaseAuth.instance.currentUser!.uid;
 
     // Create a storage reference from our app
     final storageRef = FirebaseStorage.instance.ref();
 
     // Create a reference to 'images/mountains.jpg'
-    final itemRef = storageRef.child("items/${item.uuid}_${item.timestamp}.jpg");
+    final itemRef = storageRef.child("items/${uuid}_${timestamp}.jpg");
 
-    File file = File(item.photoPath);
+    File file = File(photoPath);
 
     try {
       await itemRef.putFile(file);
-      item.photoPath = await itemRef.getDownloadURL();
-      print("photo --> + ${item.photoPath}");
+      String downloadUrl = await itemRef.getDownloadURL();
 
-      final storeItem = <String, dynamic>{
-        "timestamp": item.timestamp,
-        "name": item.name,
-        "description": item.description,
-        "contactInfo": item.contactInfo,
-        "photoPath": item.photoPath,
-        "address": item.address,
-        "lat": item.lat,
-        "lon": item.lon,
-        "tags": FieldValue.arrayUnion(item.tags),
-        "uuid": item.uuid,
-        "userName": item.userName,
-        "userProfile": item.userProfile
-      };
+      ItemVO storeItem = ItemVO(
+        timestamp: timestamp,
+        name: name,
+        description: description,
+        contactInfo: contactInfo,
+        lat: lat,
+        lon: lon,
+        photoPath: downloadUrl,
+        address: address,
+        tags: tags,
+        user: UserDao().getUser(uuid)!,
+      );
 
-      var doc = FirebaseFirestore.instance.collection("items").doc(item.timestamp);
-      doc.set(storeItem);
+      var doc = FirebaseFirestore.instance.collection("items").doc(storeItem.timestamp.toString());
+      doc.set(storeItem.toFireStore());
 
-      return Right(item);
+      return Right(storeItem);
     } on FirebaseException catch (e) {
       return Left(AppError(errorMessage: e.message ?? "unkown firebase error"));
-    }
-  }
-
-  @override
-  Future<Either<AppError, List<ItemVO>>> fetchItems(List<ItemVO> itemList, int limit) async {
-    try {
-      var value = await FirebaseFirestore.instance.collection("items").orderBy("timestamp").get();
-
-      var docs = value.docs;
-
-      List<ItemVO> newItems = [];
-      docs.forEach((document) {
-        var data = document.data();
-        newItems.add(ItemVO(
-            name: data['name'],
-            description: data['description'],
-            contactInfo: data['contactInfo'],
-            lat: data['lat'],
-            lon: data['lon'],
-            address: data['address'],
-            photoPath: data['photoPath'],
-            tags: []));
-      });
-
-      return Right(newItems);
-    } on FirebaseException catch (e) {
-      return Left(AppError(errorMessage: e.message ?? "unknown firestore error"));
     }
   }
 
@@ -208,18 +147,9 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
       print('-----------------> fectch first');
 
       List<ItemVO> newItems = [];
+
       docs.forEach((document) {
-        var data = document.data();
-        newItems.add(ItemVO(
-            name: data['name'],
-            description: data['description'],
-            contactInfo: data['contactInfo'],
-            lat: data['lat'],
-            lon: data['lon'],
-            address: data['address'],
-            photoPath: data['photoPath'],
-            timestamp: data['timestamp'],
-            tags: List.from(data['tags'])));
+        newItems.add(ItemVO.fromFireStore(document));
       });
 
       var map = <String, dynamic>{"items": newItems, "documents": value.docs};
@@ -231,8 +161,7 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
   }
 
   @override
-  Future<Either<AppError, Map<String, dynamic>>> fetchNextItems(
-      List<DocumentSnapshot> documentList, int limit) async {
+  Future<Either<AppError, Map<String, dynamic>>> fetchNextItems(List<DocumentSnapshot> documentList, int limit) async {
     try {
       if (documentList.isNotEmpty) {
         var value = await FirebaseFirestore.instance
@@ -247,17 +176,7 @@ class LostAndFoundModelImpl extends LostAndFoundModel {
 
         List<ItemVO> newItems = [];
         docs.forEach((document) {
-          var data = document.data();
-          newItems.add(ItemVO(
-              name: data['name'],
-              description: data['description'],
-              contactInfo: data['contactInfo'],
-              lat: data['lat'],
-              lon: data['lon'],
-              address: data['address'],
-              photoPath: data['photoPath'],
-              timestamp: data['timestamp'],
-              tags: List.from(data['tags'])));
+          newItems.add(ItemVO.fromFireStore(document));
         });
 
         var map = <String, dynamic>{"items": newItems, "documents": value.docs};

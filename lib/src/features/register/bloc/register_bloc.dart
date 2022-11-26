@@ -19,7 +19,12 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
         var registerEvent = event;
         Either<AppError, UserVO> registerResponse =
-            await _lostAndFoundModelImpl.registerUser(registerEvent.userVO);
+            await _lostAndFoundModelImpl.registerUser(
+              registerEvent.fullName,
+              registerEvent.email,
+              registerEvent.phone,
+              registerEvent.password
+            );
 
         registerResponse.fold((left) {
           emit(RegisterState(appError: left));
